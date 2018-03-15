@@ -902,15 +902,18 @@ JSQMessagesKeyboardControllerDelegate>
 
 #pragma mark - Keyboard controller delegate
 
+#define isIphoneX ([UIScreen mainScreen].bounds.size.height > 800 && [UIDevice currentDevice].userInterfaceIdiom == UIUserInterfaceIdiomPhone)
+#define bottomSpace (isIphoneX ? 34.0f : 0.0f)
+
 - (void)keyboardController:(JSQMessagesKeyboardController *)keyboardController keyboardDidChangeFrame:(CGRect)keyboardFrame
 {
-    if (![self.inputToolbar.contentView.textView isFirstResponder] && self.toolbarBottomLayoutGuide.constant == 0.0) {
+    if (![self.inputToolbar.contentView.textView isFirstResponder] && self.toolbarBottomLayoutGuide.constant == bottomSpace) {
         return;
     }
 
     CGFloat heightFromBottom = CGRectGetMaxY(self.collectionView.frame) - CGRectGetMinY(keyboardFrame);
 
-    heightFromBottom = MAX(0.0, heightFromBottom);
+    heightFromBottom = MAX(bottomSpace, heightFromBottom);
 
     [self jsq_setToolbarBottomLayoutGuideConstant:heightFromBottom];
 }
@@ -948,7 +951,7 @@ JSQMessagesKeyboardControllerDelegate>
                 [self.inputToolbar.contentView.textView resignFirstResponder];
                 [UIView animateWithDuration:0.0
                                  animations:^{
-                                     [self jsq_setToolbarBottomLayoutGuideConstant:0.0];
+                                     [self jsq_setToolbarBottomLayoutGuideConstant:bottomSpace];
                                  }];
 
                 UIView *snapshot = [self.view snapshotViewAfterScreenUpdates:YES];
@@ -1055,7 +1058,7 @@ JSQMessagesKeyboardControllerDelegate>
 - (void)jsq_updateCollectionViewInsets
 {
     [self jsq_setCollectionViewInsetsTopValue:self.topLayoutGuide.length + self.topContentAdditionalInset
-                                  bottomValue:CGRectGetMaxY(self.collectionView.frame) - CGRectGetMinY(self.inputToolbar.frame)];
+                                  bottomValue:CGRectGetMaxY(self.collectionView.frame) - CGRectGetMinY(self.inputToolbar.frame) - bottomSpace];
 }
 
 - (void)jsq_setCollectionViewInsetsTopValue:(CGFloat)top bottomValue:(CGFloat)bottom
